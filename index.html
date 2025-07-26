@@ -4,218 +4,327 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Зарплаты Frontend-разработчиков</title>
-    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Boxplot Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-boxplot@4.2.4/build/index.umd.min.js"></script>
     <style>
         :root {
-            --primary-color: #2b5df0;
-            --primary-hover: #1a45c7;
-            --text-color: #333;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --border-color: #e0e0e0;
-            --success-color: #28a745;
-            --error-color: #dc3545;
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 0;
-            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px 0;
+            padding: 20px;
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
+            color: var(--secondary);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .salary-display {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: var(--radius);
             padding: 30px;
             text-align: center;
+            box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border: 1px solid var(--border-color);
+            transition: var(--transition);
         }
 
-        .salary-amount {
-            font-size: 3.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin: 10px 0;
+        .salary-display:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
 
         .salary-label {
-            font-size: 1.2rem;
-            color: #666;
+            font-size: 1.5rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-weight: 500;
         }
 
-        .controls {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border-color);
+        .salary-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .salary-note {
+            color: var(--gray);
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        .data-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
         }
 
         .btn {
-            background-color: var(--primary-color);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 25px;
+            border-radius: 50px;
             font-size: 1rem;
-            border-radius: 5px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             text-decoration: none;
-            display: inline-block;
-            text-align: center;
         }
 
-        .btn:hover, .btn:focus {
-            background-color: var(--primary-hover);
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
         }
 
-        .btn:disabled {
-             background-color: #cccccc;
-             cursor: not-allowed;
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
         }
 
-        .instructions {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9f4ff;
-            border-radius: 5px;
-            display: none; /* Hidden by default */
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
         }
 
-        .instructions h3 {
-            margin-top: 0;
+        .btn-lg {
+            padding: 15px 30px;
+            font-size: 1.1rem;
         }
 
-        .instructions ol {
-            text-align: left;
-            padding-left: 20px;
-        }
-
-        .instructions li {
-            margin-bottom: 10px;
+        .input-group {
+            margin-bottom: 20px;
         }
 
         textarea {
             width: 100%;
-            height: 150px;
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
             font-family: monospace;
-            font-size: 0.9rem;
+            font-size: 14px;
             resize: vertical;
-            display: none; /* Hidden by default */
+            transition: var(--transition);
         }
 
-        .process-btn {
-            margin-top: 15px;
-            display: none; /* Hidden by default */
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
-        .message {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
+        .hidden {
             display: none;
         }
 
-        .message.error {
-            background-color: #f8d7da;
-            color: var(--error-color);
-            border: 1px solid var(--error-color);
-        }
-
-        .message.success {
-            background-color: #d4edda;
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
-        }
-
-
         .chart-container {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border-color);
-            display: none; /* Hidden by default */
+            position: relative;
+            height: 500px;
+            width: 100%;
         }
 
-        footer {
+        .alert {
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .footer {
             text-align: center;
-            padding: 20px;
-            color: #666;
+            padding: 30px 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        .group-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .group-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
             font-size: 0.9rem;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
+        .group-btn.active {
+            background: var(--primary);
+            color: white;
+        }
 
-            h1 {
-                font-size: 1.5rem;
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .salary-value {
+                font-size: 3.5rem;
             }
-
-            .salary-amount {
-                font-size: 2.5rem;
-            }
-
-            .salary-display, .controls, .chart-container {
-                padding: 20px;
+            
+            .chart-container {
+                height: 400px;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             h1 {
-                font-size: 1.3rem;
-            }
-
-            .salary-amount {
                 font-size: 2rem;
             }
+            
+            .salary-value {
+                font-size: 3rem;
+            }
+            
+            .chart-container {
+                height: 350px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
 
+        @media (max-width: 576px) {
+            body {
+                padding: 15px;
+            }
+            
+            .salary-value {
+                font-size: 2.5rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
             .btn {
                 width: 100%;
-                padding: 15px;
+                justify-content: center;
+            }
+            
+            .chart-container {
+                height: 300px;
             }
         }
     </style>
@@ -223,244 +332,355 @@
 <body>
     <div class="container">
         <header>
-            <h1>Зарплаты Frontend-разработчиков в России</h1>
+            <h1>Зарплаты Frontend-разработчиков</h1>
+            <p class="subtitle">Анализ медианных зарплат и распределения по уровням на основе данных с Habr Career</p>
         </header>
 
         <main>
-            <section class="salary-display">
-                <p class="salary-label">Медианная зарплата (All)</p>
-                <div id="medianSalary" class="salary-amount">-- ₽</div>
-                <p>Данные загружаются...</p>
-            </section>
+            <div class="salary-display">
+                <div class="salary-label">Текущая медианная зарплата</div>
+                <div class="salary-value" id="medianSalary">—</div>
+                <div class="salary-note" id="salaryNote">Загрузите данные, чтобы увидеть актуальную информацию</div>
+            </div>
 
-            <section class="controls">
-                <button id="fetchDataBtn" class="btn">1. Получить актуальные данные</button>
-                <div id="instructions" class="instructions">
-                    <h3>Инструкция:</h3>
-                    <ol>
-                        <li>Откроется новая вкладка с данными API.</li>
-                        <li>Скопируйте всё содержимое страницы (Ctrl+A, затем Ctrl+C).</li>
-                        <li>Вернитесь на эту вкладку.</li>
-                        <li>Вставьте скопированные данные в поле ниже.</li>
-                        <li>Нажмите кнопку "2. Обработать данные".</li>
-                    </ol>
+            <div class="data-section">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Получение данных</h2>
+                            <p>Из-за ограничений CORS нам нужно получить данные вручную</p>
+                        </div>
+                        <button class="btn btn-lg" id="toggleHelp">
+                            <i class="fas fa-question-circle"></i> Инструкция
+                        </button>
+                    </div>
+
+                    <div id="helpSection">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <p>Нажмите на кнопку ниже, чтобы открыть страницу с данными о зарплатах:</p>
+                                <a href="https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases%5B%5D=frontend" 
+                                   target="_blank" class="btn">
+                                    <i class="fas fa-external-link-alt"></i> Открыть данные зарплат
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <p>Скопируйте весь текст со страницы (это данные в формате JSON):</p>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <div>На странице должен отображаться только текст с данными. Если видите страницу с рекламой, прокрутите вниз до текста с фигурными скобками { ... }</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <p>Вставьте скопированные данные в поле ниже:</p>
+                                <div class="input-group">
+                                    <textarea id="jsonData" placeholder='Вставьте сюда JSON данные...'></textarea>
+                                </div>
+                                <button class="btn" id="processData">
+                                    <i class="fas fa-chart-bar"></i> Построить график
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <textarea id="jsonDataInput" placeholder='Вставьте скопированный JSON сюда...'></textarea>
-                <button id="processDataBtn" class="btn process-btn">2. Обработать данные</button>
-                <div id="message" class="message"></div>
-            </section>
 
-            <section class="chart-container">
-                <h2 style="margin-bottom: 20px;">Распределение зарплат по уровням</h2>
-                <canvas id="salaryChart"></canvas>
-            </section>
+                <div class="card hidden" id="chartCard">
+                    <div class="card-header">
+                        <h2 class="card-title">Распределение зарплат по уровням</h2>
+                        <div class="group-selector" id="groupSelector">
+                            <!-- Group buttons will be added dynamically -->
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="salaryChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </main>
 
-        <footer>
-            <p>Данные предоставлены <a href="https://career.habr.com/salaries/frontend-developer" target="_blank" rel="noopener noreferrer">Habr Career</a>.</p>
-        </footer>
+        <div class="footer">
+            <p>Данные предоставлены Habr Career. Обновляется автоматически при загрузке новых данных.</p>
+            <p>© 2023 Анализ зарплат IT-специалистов</p>
+        </div>
     </div>
 
     <script>
-        const API_URL = 'https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases%5B%5D=frontend';
-        const fetchDataBtn = document.getElementById('fetchDataBtn');
-        const instructions = document.getElementById('instructions');
-        const jsonDataInput = document.getElementById('jsonDataInput');
-        const processDataBtn = document.getElementById('processDataBtn');
-        const medianSalaryDisplay = document.getElementById('medianSalary');
-        const chartContainer = document.querySelector('.chart-container');
-        const messageDiv = document.getElementById('message');
-
-        let chartInstance = null; // To hold the Chart.js instance
-
-        // 1. Open API URL in new tab
-        fetchDataBtn.addEventListener('click', () => {
-            window.open(API_URL, '_blank');
-            instructions.style.display = 'block';
-            jsonDataInput.style.display = 'block';
-            medianSalaryDisplay.textContent = '-- ₽';
-            medianSalaryDisplay.nextElementSibling.textContent = 'Ожидание данных...';
-            if (chartContainer.style.display === 'block') {
-                 chartContainer.style.display = 'none';
-                 if (chartInstance) {
-                     chartInstance.destroy();
-                     chartInstance = null;
-                 }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const jsonDataTextarea = document.getElementById('jsonData');
+            const processDataBtn = document.getElementById('processData');
+            const medianSalaryEl = document.getElementById('medianSalary');
+            const salaryNoteEl = document.getElementById('salaryNote');
+            const chartCard = document.getElementById('chartCard');
+            const groupSelector = document.getElementById('groupSelector');
+            const helpSection = document.getElementById('helpSection');
+            const toggleHelpBtn = document.getElementById('toggleHelp');
+            
+            // Chart variables
+            let salaryChart = null;
+            let currentGroup = 'All';
+            let salaryData = null;
+            
+            // Toggle help section
+            let helpVisible = true;
+            toggleHelpBtn.addEventListener('click', function() {
+                helpVisible = !helpVisible;
+                helpSection.classList.toggle('hidden', !helpVisible);
+                toggleHelpBtn.innerHTML = helpVisible ? 
+                    '<i class="fas fa-question-circle"></i> Скрыть инструкцию' : 
+                    '<i class="fas fa-question-circle"></i> Инструкция';
+            });
+            
+            // Process JSON data
+            processDataBtn.addEventListener('click', function() {
+                try {
+                    const jsonData = jsonDataTextarea.value.trim();
+                    if (!jsonData) {
+                        showError('Пожалуйста, вставьте JSON данные');
+                        return;
+                    }
+                    
+                    salaryData = JSON.parse(jsonData);
+                    
+                    if (!salaryData.groups || salaryData.groups.length === 0) {
+                        showError('Данные не содержат информацию о зарплатах');
+                        return;
+                    }
+                    
+                    // Find "All" group for median salary
+                    const allGroup = salaryData.groups.find(group => group.name === 'All');
+                    if (!allGroup) {
+                        showError('Не найдены данные для медианной зарплаты');
+                        return;
+                    }
+                    
+                    // Update median salary display
+                    const medianSalary = formatSalary(allGroup.median);
+                    medianSalaryEl.textContent = medianSalary;
+                    salaryNoteEl.textContent = `Данные на основе ${allGroup.total} анкет`;
+                    
+                    // Prepare group selector
+                    updateGroupSelector();
+                    
+                    // Show chart card
+                    chartCard.classList.remove('hidden');
+                    
+                    // Create or update chart
+                    renderChart();
+                    
+                    // Scroll to chart
+                    chartCard.scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    console.error('Error processing data:', error);
+                    showError('Ошибка обработки данных. Убедитесь, что вы скопировали правильный JSON.');
+                }
+            });
+            
+            // Format salary number
+            function formatSalary(amount) {
+                return new Intl.NumberFormat('ru-RU', {
+                    style: 'currency',
+                    currency: 'RUB',
+                    maximumFractionDigits: 0
+                }).format(amount);
             }
-            hideMessage();
-        });
-
-        // 2. Enable process button when data is pasted
-        jsonDataInput.addEventListener('input', () => {
-            if (jsonDataInput.value.trim() !== '') {
-                processDataBtn.style.display = 'inline-block';
-            } else {
-                processDataBtn.style.display = 'none';
-                hideMessage();
+            
+            // Show error message
+            function showError(message) {
+                const errorEl = document.createElement('div');
+                errorEl.className = 'alert alert-warning';
+                errorEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+                
+                const parent = processDataBtn.parentElement;
+                parent.insertBefore(errorEl, processDataBtn);
+                
+                setTimeout(() => {
+                    errorEl.remove();
+                }, 5000);
             }
-        });
-
-        // 3. Process the pasted data
-        processDataBtn.addEventListener('click', () => {
-            const jsonDataStr = jsonDataInput.value.trim();
-            if (!jsonDataStr) {
-                showMessage('Пожалуйста, вставьте данные.', 'error');
-                return;
+            
+            // Update group selector buttons
+            function updateGroupSelector() {
+                groupSelector.innerHTML = '';
+                
+                salaryData.groups.forEach(group => {
+                    if (group.name !== 'All') {
+                        const button = document.createElement('button');
+                        button.className = `group-btn ${group.name === currentGroup ? 'active' : ''}`;
+                        button.textContent = group.name;
+                        button.dataset.group = group.name;
+                        
+                        button.addEventListener('click', () => {
+                            currentGroup = group.name;
+                            document.querySelectorAll('.group-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            button.classList.add('active');
+                            renderChart();
+                        });
+                        
+                        groupSelector.appendChild(button);
+                    }
+                });
             }
-
-            let data;
-            try {
-                data = JSON.parse(jsonDataStr);
-            } catch (e) {
-                showMessage('Ошибка: Вставленные данные не являются корректным JSON.', 'error');
-                console.error("JSON Parse Error:", e);
-                return;
-            }
-
-            if (!data.groups || !Array.isArray(data.groups)) {
-                 showMessage('Ошибка: Неверный формат данных. Ожидается объект с полем "groups".', 'error');
-                 console.error("Invalid data format:", data);
-                 return;
-            }
-
-            showMessage('Данные успешно загружены!', 'success');
-
-            // Find "All" group data
-            const allGroup = data.groups.find(group => group.name === "All");
-            if (allGroup && allGroup.median) {
-                medianSalaryDisplay.textContent = `${formatNumber(allGroup.median)} ₽`;
-                medianSalaryDisplay.nextElementSibling.textContent = 'Актуальная медианная зарплата';
-            } else {
-                medianSalaryDisplay.textContent = 'N/A';
-                medianSalaryDisplay.nextElementSibling.textContent = 'Медианная зарплата недоступна';
-            }
-
-            // Prepare data for Chart.js Boxplot
-            const chartData = prepareChartData(data.groups);
-
-            // Render Chart
-            renderChart(chartData);
-
-            // Show chart container
-            chartContainer.style.display = 'block';
-
-            // Scroll to chart
-            chartContainer.scrollIntoView({ behavior: 'smooth' });
-        });
-
-        function prepareChartData(groups) {
-             // Filter out "All" and potentially groups with missing data
-             const filteredGroups = groups
-                 .filter(g => g.name !== "All" && g.min != null && g.p25 != null && g.median != null && g.p75 != null && g.max != null)
-                 .sort((a, b) => { // Sort by median salary
-                     return (a.median || 0) - (b.median || 0);
-                 });
-
-             const labels = filteredGroups.map(g => g.title || g.name);
-             const datasets = filteredGroups.map(g => [g.min, g.p25, g.median, g.p75, g.max]);
-
-             return { labels, datasets };
-        }
-
-        function renderChart(chartData) {
-            const ctx = document.getElementById('salaryChart').getContext('2d');
-
-            // Destroy previous chart instance if exists
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            chartInstance = new Chart(ctx, {
-                type: 'boxplot',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Зарплата (₽)',
-                        data: chartData.datasets,
-                        backgroundColor: 'rgba(43, 93, 240, 0.2)',
-                        borderColor: 'rgba(43, 93, 240, 1)',
-                        borderWidth: 1,
-                        outlierRadius: 3, // Make outliers less prominent
-                        itemRadius: 0, // Hide individual item points
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatNumber(value) + ' ₽'; // Format Y axis labels
+            
+            // Render the chart
+            function renderChart() {
+                const ctx = document.getElementById('salaryChart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (salaryChart) {
+                    salaryChart.destroy();
+                }
+                
+                // Prepare data for selected group
+                const groupData = salaryData.groups.find(group => group.name === currentGroup);
+                
+                // Prepare data for chart
+                const labels = ['Минимум', '25-й перцентиль', 'Медиана', '75-й перцентиль', 'Максимум'];
+                const data = [
+                    groupData.min,
+                    groupData.p25,
+                    groupData.median,
+                    groupData.p75,
+                    groupData.max
+                ];
+                
+                // Create chart
+                salaryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: `Зарплата (${currentGroup})`,
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 99, 132, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(54, 162, 235)',
+                                'rgb(75, 192, 192)',
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 99, 132)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `Распределение зарплат для уровня: ${currentGroup}`,
+                                font: {
+                                    size: 18
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return formatSalary(context.parsed.y);
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatSalary(value);
+                                    }
                                 }
                             }
                         }
-                    },
-                    plugins: {
-                         legend: {
-                             display: false // Hide legend as it's not needed for one dataset
-                         },
-                         tooltip: {
-                             callbacks: {
-                                 label: function(context) {
-                                     // Customize tooltip to show min, q1, median, q3, max
-                                     const raw = context.raw;
-                                     if (raw && Array.isArray(raw)) {
-                                         return [
-                                             `Мин: ${formatNumber(raw[0])} ₽`,
-                                             `25%: ${formatNumber(raw[1])} ₽`,
-                                             `Медиана: ${formatNumber(raw[2])} ₽`,
-                                             `75%: ${formatNumber(raw[3])} ₽`,
-                                             `Макс: ${formatNumber(raw[4])} ₽`
-                                         ];
-                                     }
-                                     return context.dataset.label + ': ' + context.parsed.y;
-                                 }
-                             }
-                         }
                     }
+                });
+            }
+            
+            // Add sample data button functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'addSampleData') {
+                    jsonDataTextarea.value = JSON.stringify({
+                        "groups": [
+                            {
+                                "name": "All",
+                                "min": 78500,
+                                "max": 425000,
+                                "p25": 128333,
+                                "p75": 327466,
+                                "median": 223333,
+                                "total": 5041,
+                                "title": "Фронтенд разработчик"
+                            },
+                            {
+                                "name": "Intern",
+                                "min": 20833,
+                                "max": 141447,
+                                "p25": 41213,
+                                "p75": 86250,
+                                "median": 62791,
+                                "total": 150
+                            },
+                            {
+                                "name": "Senior",
+                                "min": 207250,
+                                "max": 483333,
+                                "p25": 270541,
+                                "p75": 410000,
+                                "median": 337500,
+                                "total": 1264
+                            },
+                            {
+                                "name": "Middle",
+                                "min": 102500,
+                                "max": 310000,
+                                "p25": 141133,
+                                "p75": 250333,
+                                "median": 197500,
+                                "total": 2479
+                            },
+                            {
+                                "name": "Junior",
+                                "min": 45833,
+                                "max": 150833,
+                                "p25": 61666,
+                                "p75": 110833,
+                                "median": 85833,
+                                "total": 662
+                            },
+                            {
+                                "name": "Lead",
+                                "min": 256666,
+                                "max": 577500,
+                                "p25": 329166,
+                                "p75": 490333,
+                                "median": 400000,
+                                "total": 486
+                            }
+                        ]
+                    }, null, 2);
                 }
             });
-        }
-
-        function formatNumber(num) {
-            return new Intl.NumberFormat('ru-RU').format(num);
-        }
-
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = 'message ' + type;
-            messageDiv.style.display = 'block';
-        }
-
-        function hideMessage() {
-            messageDiv.style.display = 'none';
-        }
-
-        // Initial load attempt (might fail due to CORS, but good practice)
-        window.addEventListener('DOMContentLoaded', () => {
-             fetch(API_URL)
-                 .then(response => {
-                     if (!response.ok) {
-                         throw new Error(`HTTP error! status: ${response.status}`);
-                     }
-                     return response.json();
-                 })
-                 .then(data => {
-                     if (data && data.groups) {
-                         const allGroup = data.groups.find(g => g.name === "All");
-                         if (allGroup && allGroup.median) {
-                             medianSalaryDisplay.textContent = `${formatNumber(allGroup.median)} ₽`;
-                             medianSalaryDisplay.nextElementSibling.textContent = 'Актуальная медианная зарплата';
-                         }
-                     }
-                 })
-                 .catch(error => {
-                     console.log("Автоматическая загрузка данных не удалась (возможно, CORS):", error);
-                     // The manual process is the fallback, so no need for a specific error message here
-                     medianSalaryDisplay.nextElementSibling.textContent = 'Нажмите кнопку, чтобы получить данные.';
-                 });
         });
     </script>
 </body>
