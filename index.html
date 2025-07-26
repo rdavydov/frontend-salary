@@ -1,205 +1,271 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Фронтенд ЗП — Habr Career</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Фронтенд ЗП – Habr Career</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --accent:#58a6ff;
+  --text:#c9d1d9;
+  --text-muted:#8b949e;
+  --danger:#f85149;
+  --success:#3fb950;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:1rem}
+h1{margin:.5rem 0 1rem;font-size:1.5rem;font-weight:700;text-align:center}
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+/* 1. MEDIAN CARD */
+#medianCard{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  background:var(--surface);
+  padding:2rem 1.5rem;
+  border-radius:12px;
+  width:100%;
+  max-width:420px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  margin-bottom:1.5rem;
+}
+.median-label{font-size:1rem;color:var(--text-muted)}
+.median-value{font-size:2.5rem;font-weight:700;color:var(--accent)}
+.median-currency{font-size:1.4rem;font-weight:600;margin-left:.25rem}
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+/* 2. COLLAPSIBLE PANEL */
+#panel{
+  width:100%;
+  max-width:420px;
+  background:var(--surface);
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  overflow:hidden;
+  margin-bottom:1rem;
+}
+#panelHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:1rem 1.25rem;
+  cursor:pointer;
+  user-select:none;
+}
+#panelBody{padding:0 1.25rem 1.25rem;display:none}
+#panelBody.open{display:block}
+button{
+  width:100%;
+  padding:.75rem;
+  border:0;
+  border-radius:8px;
+  font-size:1rem;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:active{background:#0066cc}
+textarea{
+  width:100%;
+  min-height:120px;
+  max-height:40vh;
+  resize:vertical;
+  border:1px solid var(--text-muted);
+  border-radius:8px;
+  padding:.75rem;
+  font-family:monospace;
+  font-size:.875rem;
+  margin:.5rem 0;
+  background:var(--bg);
+  color:var(--text);
+}
+#error{color:var(--danger);font-size:.875rem;margin-top:.5rem;text-align:center;display:none}
+#success{color:var(--success);font-size:.875rem;margin-top:.5rem;text-align:center;display:none}
 
-  <style>
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --accent: #58a6ff;
-      --text: #c9d1d9;
-      --text-muted: #8b949e;
-    }
+/* 3. CHART */
+#chartWrapper{
+  width:100%;
+  max-width:800px;
+  background:var(--surface);
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  padding:1rem;
+  display:none;
+}
+canvas{max-width:100%;height:auto}
 
-    * {
-      box-sizing: border-box;
-    }
+/* 4. DARK / LIGHT toggle */
+#themeToggle{
+  position:absolute;
+  top:.75rem;
+  right:.75rem;
+  background:0;
+  border:0;
+  font-size:1.5rem;
+  cursor:pointer;
+}
 
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-    }
-
-    .median-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      padding: 2.5rem 3.5rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
-      margin-bottom: 2.5rem;
-      text-align: center;
-      max-width: 320px;
-      width: 100%;
-    }
-
-    .median-label {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      margin-bottom: .25rem;
-    }
-
-    .median-value {
-      font-size: 2.75rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .median-currency {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin-left: .25rem;
-    }
-
-    canvas {
-      background: var(--surface);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
-      max-width: 800px;
-      width: 100%;
-      height: auto;
-    }
-
-    @media (max-width: 500px) {
-      .median-value { font-size: 2.2rem; }
-    }
-  </style>
+/* 5. RESPONSIVE */
+@media(min-width:600px){
+  body{padding:2rem}
+  h1{font-size:2rem}
+  #panel,#medianCard{max-width:480px}
+}
+@media(min-width:900px){
+  #panel,#medianCard{max-width:520px}
+}
+</style>
 </head>
-
 <body>
-  <div class="median-block">
-    <div class="median-label">Медианная зарплата</div>
-    <div>
-      <span id="medianValue" class="median-value">—</span>
-      <span class="median-currency">₽</span>
-    </div>
+
+<button id="themeToggle" aria-label="Переключить тему">🌙</button>
+
+<h1>Зарплаты Frontend-разработчиков</h1>
+
+<!-- Median card -->
+<div id="medianCard">
+  <div class="median-label">Медианная зарплата</div>
+  <div>
+    <span id="medianValue">—</span>
+    <span class="median-currency">₽</span>
   </div>
+</div>
 
+<!-- Collapsible panel -->
+<div id="panel">
+  <div id="panelHead">
+    <span id="panelTitle">Показать зарплаты</span>
+    <span id="panelIcon">▼</span>
+  </div>
+  <div id="panelBody">
+    <button id="copyBtn" class="btn-primary">📋 Скопировать JSON</button>
+    <p style="font-size:.875rem;color:var(--text-muted);margin:.5rem 0 0">Откроется вкладка → Ctrl+A → Ctrl+C → вернитесь и вставьте ниже</p>
+
+    <textarea id="jsonInput" placeholder="Вставьте JSON сюда…"></textarea>
+    <button id="buildBtn" class="btn-primary">Построить график</button>
+
+    <div id="error">Ошибка: проверьте формат JSON</div>
+    <div id="success">Данные обновлены!</div>
+  </div>
+</div>
+
+<!-- Chart -->
+<div id="chartWrapper">
   <canvas id="salaryChart" height="300"></canvas>
+</div>
 
-  <script>
-    const API_URL = 'https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend';
+<script>
+const LS_KEY='habr_salary_json';
+const panel      = document.getElementById('panel');
+const panelHead  = document.getElementById('panelHead');
+const panelBody  = document.getElementById('panelBody');
+const panelIcon  = document.getElementById('panelIcon');
+const copyBtn    = document.getElementById('copyBtn');
+const buildBtn   = document.getElementById('buildBtn');
+const jsonInput  = document.getElementById('jsonInput');
+const errorBox   = document.getElementById('error');
+const successBox = document.getElementById('success');
+const medianCard = document.getElementById('medianCard');
+const medianVal  = document.getElementById('medianValue');
+const chartWrap  = document.getElementById('chartWrapper');
+let chart;
 
-    async function fetchData() {
-      try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error(res.status);
-        return await res.json();
-      } catch (err) {
-        console.error(err);
-        return null;
+/* ---- collapsible panel ---- */
+function togglePanel(force){
+  const open = force===undefined? !panelBody.classList.contains('open') : force;
+  panelBody.classList.toggle('open', open);
+  panelIcon.textContent = open ? '▲' : '▼';
+  if(open){jsonInput.focus();}else{jsonInput.blur();}
+}
+panelHead.addEventListener('click',()=>togglePanel());
+
+/* ---- copy button ---- */
+copyBtn.addEventListener('click',()=>{
+  window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
+  navigator.clipboard?.writeText?.(''); // clear clipboard to avoid confusion
+});
+
+/* ---- build button ---- */
+buildBtn.addEventListener('click',()=>{
+  try{
+    const data = JSON.parse(jsonInput.value.trim());
+    if(!data.groups) throw 'no groups';
+    showData(data);
+    togglePanel(false);
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }catch(e){
+    errorBox.style.display='block';
+    successBox.style.display='none';
+    navigator.vibrate?.([30,30,30]);
+  }
+});
+
+/* ---- show data ---- */
+function showData(data){
+  errorBox.style.display='none';
+  successBox.style.display='block';
+  navigator.vibrate?.(50);
+
+  /* median */
+  const all=data.groups.find(g=>g.name==='All');
+  medianVal.textContent=all.median.toLocaleString('ru-RU');
+  medianCard.style.display='flex';
+
+  /* chart */
+  const labels=[], medians=[], p25=[], p75=[];
+  data.groups.filter(g=>g.name!=='All').forEach(g=>{
+    labels.push(g.name);
+    medians.push(g.median);
+    p25.push(g.p25);
+    p75.push(g.p75);
+  });
+
+  if(chart) chart.destroy();
+  chart=new Chart(document.getElementById('salaryChart'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'25-й персентиль',data:p25,backgroundColor:'rgba(88,166,255,.25)',borderColor:'rgba(88,166,255,.6)',borderWidth:1},
+        {label:'Медиана',data:medians,backgroundColor:'rgba(88,166,255,.6)',borderColor:'rgba(88,166,255,1)',borderWidth:1},
+        {label:'75-й персентиль',data:p75,backgroundColor:'rgba(88,166,255,.25)',borderColor:'rgba(88,166,255,.6)',borderWidth:1}
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toLocaleString('ru-RU')} ₽`}}},
+      scales:{
+        x:{ticks:{color:'var(--text)'},grid:{display:false}},
+        y:{ticks:{color:'var(--text)',callback:v=>v.toLocaleString('ru-RU')},grid:{color:'#30363d'}}
       }
     }
+  });
+  chartWrap.style.display='block';
+}
 
-    function numberWithSpaces(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    }
+/* ---- load cached ---- */
+(()=>{
+  const cached=localStorage.getItem(LS_KEY);
+  if(cached){
+    jsonInput.value=cached;
+    showData(JSON.parse(cached));
+    togglePanel(false);
+  }
+})();
 
-    function setupMedian(data) {
-      const all = data.groups.find(g => g.name === 'All');
-      const median = all ? all.median : 0;
-      document.getElementById('medianValue').textContent = numberWithSpaces(median);
-    }
-
-    function setupChart(data) {
-      const labels = [];
-      const medians = [];
-      const p25 = [];
-      const p75 = [];
-
-      data.groups.filter(g => g.name !== 'All').forEach(g => {
-        labels.push(g.name);
-        medians.push(g.median);
-        p25.push(g.p25);
-        p75.push(g.p75);
-      });
-
-      new Chart(document.getElementById('salaryChart'), {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: '25-й персентиль',
-              data: p25,
-              backgroundColor: 'rgba(88, 166, 255, 0.25)',
-              borderColor: 'rgba(88, 166, 255, 0.6)',
-              borderWidth: 1,
-              barPercentage: 0.6,
-              categoryPercentage: 0.9,
-            },
-            {
-              label: 'Медиана',
-              data: medians,
-              backgroundColor: 'rgba(88, 166, 255, 0.6)',
-              borderColor: 'rgba(88, 166, 255, 1)',
-              borderWidth: 1,
-              barPercentage: 0.6,
-              categoryPercentage: 0.9,
-            },
-            {
-              label: '75-й персентиль',
-              data: p75,
-              backgroundColor: 'rgba(88, 166, 255, 0.25)',
-              borderColor: 'rgba(88, 166, 255, 0.6)',
-              borderWidth: 1,
-              barPercentage: 0.6,
-              categoryPercentage: 0.9,
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => `${ctx.dataset.label}: ${numberWithSpaces(ctx.raw)} ₽`
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#c9d1d9' },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: '#c9d1d9',
-                callback: v => numberWithSpaces(v)
-              },
-              grid: { color: '#30363d' }
-            }
-          }
-        }
-      });
-    }
-
-    (async () => {
-      const data = await fetchData();
-      if (data) {
-        setupMedian(data);
-        setupChart(data);
-      }
-    })();
-  </script>
+/* ---- dark / light ---- */
+const toggleBtn=document.getElementById('themeToggle');
+if(localStorage.theme==='light') setTheme('light');
+toggleBtn.addEventListener('click',()=>setTheme(localStorage.theme==='light'?'dark':'light'));
+function setTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  localStorage.theme=theme;
+  toggleBtn.textContent=theme==='light'?'🌙':'☀️';
+}
+</script>
 </body>
 </html>
