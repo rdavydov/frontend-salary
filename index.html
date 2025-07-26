@@ -1,271 +1,467 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Фронтенд ЗП – Habr Career</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root{
-  --bg:#0d1117;
-  --surface:#161b22;
-  --accent:#58a6ff;
-  --text:#c9d1d9;
-  --text-muted:#8b949e;
-  --danger:#f85149;
-  --success:#3fb950;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:1rem}
-h1{margin:.5rem 0 1rem;font-size:1.5rem;font-weight:700;text-align:center}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Зарплаты Frontend-разработчиков</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Boxplot Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-boxplot@4.2.4/build/index.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2b5df0;
+            --primary-hover: #1a45c7;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
 
-/* 1. MEDIAN CARD */
-#medianCard{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  background:var(--surface);
-  padding:2rem 1.5rem;
-  border-radius:12px;
-  width:100%;
-  max-width:420px;
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
-  margin-bottom:1.5rem;
-}
-.median-label{font-size:1rem;color:var(--text-muted)}
-.median-value{font-size:2.5rem;font-weight:700;color:var(--accent)}
-.median-currency{font-size:1.4rem;font-weight:600;margin-left:.25rem}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-/* 2. COLLAPSIBLE PANEL */
-#panel{
-  width:100%;
-  max-width:420px;
-  background:var(--surface);
-  border-radius:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
-  overflow:hidden;
-  margin-bottom:1rem;
-}
-#panelHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:1rem 1.25rem;
-  cursor:pointer;
-  user-select:none;
-}
-#panelBody{padding:0 1.25rem 1.25rem;display:none}
-#panelBody.open{display:block}
-button{
-  width:100%;
-  padding:.75rem;
-  border:0;
-  border-radius:8px;
-  font-size:1rem;
-  font-weight:600;
-  cursor:pointer;
-}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:active{background:#0066cc}
-textarea{
-  width:100%;
-  min-height:120px;
-  max-height:40vh;
-  resize:vertical;
-  border:1px solid var(--text-muted);
-  border-radius:8px;
-  padding:.75rem;
-  font-family:monospace;
-  font-size:.875rem;
-  margin:.5rem 0;
-  background:var(--bg);
-  color:var(--text);
-}
-#error{color:var(--danger);font-size:.875rem;margin-top:.5rem;text-align:center;display:none}
-#success{color:var(--success);font-size:.875rem;margin-top:.5rem;text-align:center;display:none}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
 
-/* 3. CHART */
-#chartWrapper{
-  width:100%;
-  max-width:800px;
-  background:var(--surface);
-  border-radius:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
-  padding:1rem;
-  display:none;
-}
-canvas{max-width:100%;height:auto}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-/* 4. DARK / LIGHT toggle */
-#themeToggle{
-  position:absolute;
-  top:.75rem;
-  right:.75rem;
-  background:0;
-  border:0;
-  font-size:1.5rem;
-  cursor:pointer;
-}
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
 
-/* 5. RESPONSIVE */
-@media(min-width:600px){
-  body{padding:2rem}
-  h1{font-size:2rem}
-  #panel,#medianCard{max-width:480px}
-}
-@media(min-width:900px){
-  #panel,#medianCard{max-width:520px}
-}
-</style>
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .salary-display {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .salary-amount {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .salary-label {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .controls {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover, .btn:focus {
+            background-color: var(--primary-hover);
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .btn:disabled {
+             background-color: #cccccc;
+             cursor: not-allowed;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f4ff;
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+        }
+
+        .instructions ol {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            display: none; /* Hidden by default */
+        }
+
+        .process-btn {
+            margin-top: 15px;
+            display: none; /* Hidden by default */
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+
+        .chart-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            display: none; /* Hidden by default */
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .salary-amount {
+                font-size: 2.5rem;
+            }
+
+            .salary-display, .controls, .chart-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .salary-amount {
+                font-size: 2rem;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Зарплаты Frontend-разработчиков в России</h1>
+        </header>
 
-<button id="themeToggle" aria-label="Переключить тему">🌙</button>
+        <main>
+            <section class="salary-display">
+                <p class="salary-label">Медианная зарплата (All)</p>
+                <div id="medianSalary" class="salary-amount">-- ₽</div>
+                <p>Данные загружаются...</p>
+            </section>
 
-<h1>Зарплаты Frontend-разработчиков</h1>
+            <section class="controls">
+                <button id="fetchDataBtn" class="btn">1. Получить актуальные данные</button>
+                <div id="instructions" class="instructions">
+                    <h3>Инструкция:</h3>
+                    <ol>
+                        <li>Откроется новая вкладка с данными API.</li>
+                        <li>Скопируйте всё содержимое страницы (Ctrl+A, затем Ctrl+C).</li>
+                        <li>Вернитесь на эту вкладку.</li>
+                        <li>Вставьте скопированные данные в поле ниже.</li>
+                        <li>Нажмите кнопку "2. Обработать данные".</li>
+                    </ol>
+                </div>
+                <textarea id="jsonDataInput" placeholder='Вставьте скопированный JSON сюда...'></textarea>
+                <button id="processDataBtn" class="btn process-btn">2. Обработать данные</button>
+                <div id="message" class="message"></div>
+            </section>
 
-<!-- Median card -->
-<div id="medianCard">
-  <div class="median-label">Медианная зарплата</div>
-  <div>
-    <span id="medianValue">—</span>
-    <span class="median-currency">₽</span>
-  </div>
-</div>
+            <section class="chart-container">
+                <h2 style="margin-bottom: 20px;">Распределение зарплат по уровням</h2>
+                <canvas id="salaryChart"></canvas>
+            </section>
+        </main>
 
-<!-- Collapsible panel -->
-<div id="panel">
-  <div id="panelHead">
-    <span id="panelTitle">Показать зарплаты</span>
-    <span id="panelIcon">▼</span>
-  </div>
-  <div id="panelBody">
-    <button id="copyBtn" class="btn-primary">📋 Скопировать JSON</button>
-    <p style="font-size:.875rem;color:var(--text-muted);margin:.5rem 0 0">Откроется вкладка → Ctrl+A → Ctrl+C → вернитесь и вставьте ниже</p>
+        <footer>
+            <p>Данные предоставлены <a href="https://career.habr.com/salaries/frontend-developer" target="_blank" rel="noopener noreferrer">Habr Career</a>.</p>
+        </footer>
+    </div>
 
-    <textarea id="jsonInput" placeholder="Вставьте JSON сюда…"></textarea>
-    <button id="buildBtn" class="btn-primary">Построить график</button>
+    <script>
+        const API_URL = 'https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases%5B%5D=frontend';
+        const fetchDataBtn = document.getElementById('fetchDataBtn');
+        const instructions = document.getElementById('instructions');
+        const jsonDataInput = document.getElementById('jsonDataInput');
+        const processDataBtn = document.getElementById('processDataBtn');
+        const medianSalaryDisplay = document.getElementById('medianSalary');
+        const chartContainer = document.querySelector('.chart-container');
+        const messageDiv = document.getElementById('message');
 
-    <div id="error">Ошибка: проверьте формат JSON</div>
-    <div id="success">Данные обновлены!</div>
-  </div>
-</div>
+        let chartInstance = null; // To hold the Chart.js instance
 
-<!-- Chart -->
-<div id="chartWrapper">
-  <canvas id="salaryChart" height="300"></canvas>
-</div>
+        // 1. Open API URL in new tab
+        fetchDataBtn.addEventListener('click', () => {
+            window.open(API_URL, '_blank');
+            instructions.style.display = 'block';
+            jsonDataInput.style.display = 'block';
+            medianSalaryDisplay.textContent = '-- ₽';
+            medianSalaryDisplay.nextElementSibling.textContent = 'Ожидание данных...';
+            if (chartContainer.style.display === 'block') {
+                 chartContainer.style.display = 'none';
+                 if (chartInstance) {
+                     chartInstance.destroy();
+                     chartInstance = null;
+                 }
+            }
+            hideMessage();
+        });
 
-<script>
-const LS_KEY='habr_salary_json';
-const panel      = document.getElementById('panel');
-const panelHead  = document.getElementById('panelHead');
-const panelBody  = document.getElementById('panelBody');
-const panelIcon  = document.getElementById('panelIcon');
-const copyBtn    = document.getElementById('copyBtn');
-const buildBtn   = document.getElementById('buildBtn');
-const jsonInput  = document.getElementById('jsonInput');
-const errorBox   = document.getElementById('error');
-const successBox = document.getElementById('success');
-const medianCard = document.getElementById('medianCard');
-const medianVal  = document.getElementById('medianValue');
-const chartWrap  = document.getElementById('chartWrapper');
-let chart;
+        // 2. Enable process button when data is pasted
+        jsonDataInput.addEventListener('input', () => {
+            if (jsonDataInput.value.trim() !== '') {
+                processDataBtn.style.display = 'inline-block';
+            } else {
+                processDataBtn.style.display = 'none';
+                hideMessage();
+            }
+        });
 
-/* ---- collapsible panel ---- */
-function togglePanel(force){
-  const open = force===undefined? !panelBody.classList.contains('open') : force;
-  panelBody.classList.toggle('open', open);
-  panelIcon.textContent = open ? '▲' : '▼';
-  if(open){jsonInput.focus();}else{jsonInput.blur();}
-}
-panelHead.addEventListener('click',()=>togglePanel());
+        // 3. Process the pasted data
+        processDataBtn.addEventListener('click', () => {
+            const jsonDataStr = jsonDataInput.value.trim();
+            if (!jsonDataStr) {
+                showMessage('Пожалуйста, вставьте данные.', 'error');
+                return;
+            }
 
-/* ---- copy button ---- */
-copyBtn.addEventListener('click',()=>{
-  window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
-  navigator.clipboard?.writeText?.(''); // clear clipboard to avoid confusion
-});
+            let data;
+            try {
+                data = JSON.parse(jsonDataStr);
+            } catch (e) {
+                showMessage('Ошибка: Вставленные данные не являются корректным JSON.', 'error');
+                console.error("JSON Parse Error:", e);
+                return;
+            }
 
-/* ---- build button ---- */
-buildBtn.addEventListener('click',()=>{
-  try{
-    const data = JSON.parse(jsonInput.value.trim());
-    if(!data.groups) throw 'no groups';
-    showData(data);
-    togglePanel(false);
-    localStorage.setItem(LS_KEY, JSON.stringify(data));
-  }catch(e){
-    errorBox.style.display='block';
-    successBox.style.display='none';
-    navigator.vibrate?.([30,30,30]);
-  }
-});
+            if (!data.groups || !Array.isArray(data.groups)) {
+                 showMessage('Ошибка: Неверный формат данных. Ожидается объект с полем "groups".', 'error');
+                 console.error("Invalid data format:", data);
+                 return;
+            }
 
-/* ---- show data ---- */
-function showData(data){
-  errorBox.style.display='none';
-  successBox.style.display='block';
-  navigator.vibrate?.(50);
+            showMessage('Данные успешно загружены!', 'success');
 
-  /* median */
-  const all=data.groups.find(g=>g.name==='All');
-  medianVal.textContent=all.median.toLocaleString('ru-RU');
-  medianCard.style.display='flex';
+            // Find "All" group data
+            const allGroup = data.groups.find(group => group.name === "All");
+            if (allGroup && allGroup.median) {
+                medianSalaryDisplay.textContent = `${formatNumber(allGroup.median)} ₽`;
+                medianSalaryDisplay.nextElementSibling.textContent = 'Актуальная медианная зарплата';
+            } else {
+                medianSalaryDisplay.textContent = 'N/A';
+                medianSalaryDisplay.nextElementSibling.textContent = 'Медианная зарплата недоступна';
+            }
 
-  /* chart */
-  const labels=[], medians=[], p25=[], p75=[];
-  data.groups.filter(g=>g.name!=='All').forEach(g=>{
-    labels.push(g.name);
-    medians.push(g.median);
-    p25.push(g.p25);
-    p75.push(g.p75);
-  });
+            // Prepare data for Chart.js Boxplot
+            const chartData = prepareChartData(data.groups);
 
-  if(chart) chart.destroy();
-  chart=new Chart(document.getElementById('salaryChart'),{
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'25-й персентиль',data:p25,backgroundColor:'rgba(88,166,255,.25)',borderColor:'rgba(88,166,255,.6)',borderWidth:1},
-        {label:'Медиана',data:medians,backgroundColor:'rgba(88,166,255,.6)',borderColor:'rgba(88,166,255,1)',borderWidth:1},
-        {label:'75-й персентиль',data:p75,backgroundColor:'rgba(88,166,255,.25)',borderColor:'rgba(88,166,255,.6)',borderWidth:1}
-      ]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toLocaleString('ru-RU')} ₽`}}},
-      scales:{
-        x:{ticks:{color:'var(--text)'},grid:{display:false}},
-        y:{ticks:{color:'var(--text)',callback:v=>v.toLocaleString('ru-RU')},grid:{color:'#30363d'}}
-      }
-    }
-  });
-  chartWrap.style.display='block';
-}
+            // Render Chart
+            renderChart(chartData);
 
-/* ---- load cached ---- */
-(()=>{
-  const cached=localStorage.getItem(LS_KEY);
-  if(cached){
-    jsonInput.value=cached;
-    showData(JSON.parse(cached));
-    togglePanel(false);
-  }
-})();
+            // Show chart container
+            chartContainer.style.display = 'block';
 
-/* ---- dark / light ---- */
-const toggleBtn=document.getElementById('themeToggle');
-if(localStorage.theme==='light') setTheme('light');
-toggleBtn.addEventListener('click',()=>setTheme(localStorage.theme==='light'?'dark':'light'));
-function setTheme(theme){
-  document.documentElement.setAttribute('data-theme',theme);
-  localStorage.theme=theme;
-  toggleBtn.textContent=theme==='light'?'🌙':'☀️';
-}
-</script>
+            // Scroll to chart
+            chartContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function prepareChartData(groups) {
+             // Filter out "All" and potentially groups with missing data
+             const filteredGroups = groups
+                 .filter(g => g.name !== "All" && g.min != null && g.p25 != null && g.median != null && g.p75 != null && g.max != null)
+                 .sort((a, b) => { // Sort by median salary
+                     return (a.median || 0) - (b.median || 0);
+                 });
+
+             const labels = filteredGroups.map(g => g.title || g.name);
+             const datasets = filteredGroups.map(g => [g.min, g.p25, g.median, g.p75, g.max]);
+
+             return { labels, datasets };
+        }
+
+        function renderChart(chartData) {
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+
+            // Destroy previous chart instance if exists
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'boxplot',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Зарплата (₽)',
+                        data: chartData.datasets,
+                        backgroundColor: 'rgba(43, 93, 240, 0.2)',
+                        borderColor: 'rgba(43, 93, 240, 1)',
+                        borderWidth: 1,
+                        outlierRadius: 3, // Make outliers less prominent
+                        itemRadius: 0, // Hide individual item points
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatNumber(value) + ' ₽'; // Format Y axis labels
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                         legend: {
+                             display: false // Hide legend as it's not needed for one dataset
+                         },
+                         tooltip: {
+                             callbacks: {
+                                 label: function(context) {
+                                     // Customize tooltip to show min, q1, median, q3, max
+                                     const raw = context.raw;
+                                     if (raw && Array.isArray(raw)) {
+                                         return [
+                                             `Мин: ${formatNumber(raw[0])} ₽`,
+                                             `25%: ${formatNumber(raw[1])} ₽`,
+                                             `Медиана: ${formatNumber(raw[2])} ₽`,
+                                             `75%: ${formatNumber(raw[3])} ₽`,
+                                             `Макс: ${formatNumber(raw[4])} ₽`
+                                         ];
+                                     }
+                                     return context.dataset.label + ': ' + context.parsed.y;
+                                 }
+                             }
+                         }
+                    }
+                }
+            });
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('ru-RU').format(num);
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+
+        // Initial load attempt (might fail due to CORS, but good practice)
+        window.addEventListener('DOMContentLoaded', () => {
+             fetch(API_URL)
+                 .then(response => {
+                     if (!response.ok) {
+                         throw new Error(`HTTP error! status: ${response.status}`);
+                     }
+                     return response.json();
+                 })
+                 .then(data => {
+                     if (data && data.groups) {
+                         const allGroup = data.groups.find(g => g.name === "All");
+                         if (allGroup && allGroup.median) {
+                             medianSalaryDisplay.textContent = `${formatNumber(allGroup.median)} ₽`;
+                             medianSalaryDisplay.nextElementSibling.textContent = 'Актуальная медианная зарплата';
+                         }
+                     }
+                 })
+                 .catch(error => {
+                     console.log("Автоматическая загрузка данных не удалась (возможно, CORS):", error);
+                     // The manual process is the fallback, so no need for a specific error message here
+                     medianSalaryDisplay.nextElementSibling.textContent = 'Нажмите кнопку, чтобы получить данные.';
+                 });
+        });
+    </script>
 </body>
 </html>
