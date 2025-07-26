@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Фронтенд ЗП — Habr Career</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --accent: #58a6ff;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .median-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      padding: 2.5rem 3.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      margin-bottom: 2.5rem;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+    }
+
+    .median-label {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: .25rem;
+    }
+
+    .median-value {
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .median-currency {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-left: .25rem;
+    }
+
+    canvas {
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      max-width: 800px;
+      width: 100%;
+      height: auto;
+    }
+
+    @media (max-width: 500px) {
+      .median-value { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="median-block">
+    <div class="median-label">Медианная зарплата</div>
+    <div>
+      <span id="medianValue" class="median-value">—</span>
+      <span class="median-currency">₽</span>
+    </div>
+  </div>
+
+  <canvas id="salaryChart" height="300"></canvas>
+
+  <script>
+    const API_URL = 'https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend';
+
+    async function fetchData() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(res.status);
+        return await res.json();
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    function numberWithSpaces(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
+    function setupMedian(data) {
+      const all = data.groups.find(g => g.name === 'All');
+      const median = all ? all.median : 0;
+      document.getElementById('medianValue').textContent = numberWithSpaces(median);
+    }
+
+    function setupChart(data) {
+      const labels = [];
+      const medians = [];
+      const p25 = [];
+      const p75 = [];
+
+      data.groups.filter(g => g.name !== 'All').forEach(g => {
+        labels.push(g.name);
+        medians.push(g.median);
+        p25.push(g.p25);
+        p75.push(g.p75);
+      });
+
+      new Chart(document.getElementById('salaryChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '25-й персентиль',
+              data: p25,
+              backgroundColor: 'rgba(88, 166, 255, 0.25)',
+              borderColor: 'rgba(88, 166, 255, 0.6)',
+              borderWidth: 1,
+              barPercentage: 0.6,
+              categoryPercentage: 0.9,
+            },
+            {
+              label: 'Медиана',
+              data: medians,
+              backgroundColor: 'rgba(88, 166, 255, 0.6)',
+              borderColor: 'rgba(88, 166, 255, 1)',
+              borderWidth: 1,
+              barPercentage: 0.6,
+              categoryPercentage: 0.9,
+            },
+            {
+              label: '75-й персентиль',
+              data: p75,
+              backgroundColor: 'rgba(88, 166, 255, 0.25)',
+              borderColor: 'rgba(88, 166, 255, 0.6)',
+              borderWidth: 1,
+              barPercentage: 0.6,
+              categoryPercentage: 0.9,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.dataset.label}: ${numberWithSpaces(ctx.raw)} ₽`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#c9d1d9' },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                color: '#c9d1d9',
+                callback: v => numberWithSpaces(v)
+              },
+              grid: { color: '#30363d' }
+            }
+          }
+        }
+      });
+    }
+
+    (async () => {
+      const data = await fetchData();
+      if (data) {
+        setupMedian(data);
+        setupChart(data);
+      }
+    })();
+  </script>
+</body>
+</html>
