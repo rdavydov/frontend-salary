@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Frontend ЗП – Habr</title>
+<title>Frontend ЗП – Хабр Карьера</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
@@ -14,7 +14,6 @@
   --text:#c9d1d9;
   --text-muted:#8b949e;
   --danger:#f85149;
-  --success:#3fb950;
 }
 html.light{
   --bg:#ffffff;
@@ -160,8 +159,8 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 #panelBody.open{display:block}
 button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;text-shadow:0 0 2px #0008,0 0 2px #0008;}
 textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-radius:6px;padding:.5rem;font-family:monospace;font-size:.75rem;background:var(--bg);color:var(--text);margin:.4rem 0}
-#error,#success{font-size:.7rem;margin-top:.3rem;text-align:center;display:none}
-#error{color:var(--danger)}#success{color:var(--success)}
+#error{font-size:.7rem;margin-top:.3rem;text-align:center;display:none}
+#error{color:var(--danger)}
 @media(min-width:600px){h1{font-size:1.6rem}}
 </style>
 </head>
@@ -169,7 +168,7 @@ textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-r
 <div id="wrapper">
 
 <button id="themeToggle" aria-label="Переключить тему">☀️</button>
-<h1>Frontend зарплаты</h1>
+<h1>медианная зарплата</h1>
 
 <!-- медиана -->
 <div id="medianCard">
@@ -193,7 +192,6 @@ textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-r
     <textarea id="jsonInput" placeholder="Вставьте JSON сюда…"></textarea>
     <button id="buildBtn" class="btn-primary">Показать</button>
     <div id="error">Формат JSON неверен</div>
-    <div id="success">Готово!</div>
   </div>
 </div>
 
@@ -218,7 +216,6 @@ const panelIcon=document.getElementById('panelIcon');
 panelHead.addEventListener('click',()=>{
   const open=!panelBody.classList.toggle('open');
   panelIcon.textContent=open?'▲':'▼';
-  document.getElementById('success').style.display='none';
 });
 document.getElementById('copyBtn').addEventListener('click',()=>{
   window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
@@ -251,13 +248,11 @@ document.getElementById('buildBtn').addEventListener('click',()=>{
     localStorage.setItem('habr_salary_json',JSON.stringify(data));
   }catch(e){
     document.getElementById('error').style.display='block';
-    document.getElementById('success').style.display='none';
   }
 });
 
 function showData(data){
   dataGlobal=data;
-  document.getElementById('success').style.display='block';
   document.getElementById('error').style.display='none';
   buildGradesBar(data.groups);
   drawStrip(data.groups);
