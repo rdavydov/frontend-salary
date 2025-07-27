@@ -1,687 +1,325 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Зарплаты Frontend-разработчиков</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --border: #dee2e6;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
-            --transition: all 0.3s ease;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Frontend ЗП – Habr</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --accent:#58a6ff;
+  --text:#c9d1d9;
+  --text-muted:#8b949e;
+  --danger:#f85149;
+  --success:#3fb950;
+}
+html.light{
+  --bg:#ffffff;
+  --surface:#f5f5f5;
+  --accent:#58a6ff;
+  --text:#222;
+  --text-muted:#555;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:background .3s,color .3s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+#wrapper{
+  width:90%;
+  max-width:420px;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+}
+h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+#themeToggle{
+  position:fixed;top:.5rem;right:.5rem;background:var(--surface);border:0;border-radius:50%;width:42px;height:42px;font-size:1.3rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3);z-index:100
+}
 
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--dark);
-            min-height: 100vh;
-            padding: 20px;
-        }
+/* медиана */
+#medianCard{
+  background:var(--surface);
+  border-radius:10px;
+  padding:1rem;
+  text-align:center;
+  display:none;
+}
+#medianValue{font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:.25rem}
+#medianInfo{
+  font-size:.8rem;
+  color:var(--text-muted);
+  margin-bottom:.75rem;
+  letter-spacing:.3px;
+}
+#medianInfo code{
+  background:var(--bg);
+  color:var(--accent);
+  padding:.15rem .35rem;
+  border-radius:4px;
+  font-family:'Inter',monospace;
+  font-weight:600;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+/* 4 блока */
+#miniStats{
+  display:flex;
+  gap:.25rem;
+  flex-wrap:nowrap;
+  justify-content:space-between;
+  margin-bottom:1.2rem;          /* ↑ отступ к грейдам */
+}
+.miniBlock{
+  flex:1 1 0;
+  background:var(--bg);
+  border-radius:6px;
+  padding:.5rem .25rem;
+  font-size:.7rem;
+  text-align:center;
+  white-space:nowrap;
+}
+.miniBlock .num{font-size:.8rem;font-weight:600;color:var(--accent)}
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-        }
+/* грейды – визуально выделены рамкой + отступ */
+#gradeBar{
+  display:flex;
+  gap:.25rem;
+  flex-wrap:nowrap;
+  justify-content:space-between;
+  border:1px solid var(--accent);
+  border-radius:8px;
+  padding:.25rem;
+}
+.gradeBtn{
+  flex:1 1 0;
+  background:transparent;
+  border:0;
+  color:var(--accent);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.2rem;
+  font-size:.7rem;
+  padding:.4rem 0;
+  border-radius:4px;
+}
+.gradeBtn.active{background:var(--accent);color:#fff}
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: var(--secondary);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
+/* прогресс-бары */
+#strip{
+  background:var(--surface);
+  border-radius:6px;
+  padding:.4rem;
+  display:none
+}
+.bar{
+  height:28px;
+  border-radius:4px;
+  margin:.25rem 0;
+  position:relative;
+  background:var(--accent);
+  transition:width .4s;
+  display:flex;
+  align-items:center;
+}
+.bar span{
+  position:absolute;
+  top:50%;
+  left:.4rem;
+  transform:translateY(-50%);
+  font-size:.65rem;
+  font-weight:600;
+  color:#fff;
+  padding:.1rem .35rem;
+  background:#000a;
+  border-radius:3px;
+  white-space:nowrap;
+}
 
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--gray);
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .salary-display {
-            background: white;
-            border-radius: var(--radius);
-            padding: 30px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-            transition: var(--transition);
-        }
-
-        .salary-display:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .salary-label {
-            font-size: 1.5rem;
-            color: var(--gray);
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
-        .salary-value {
-            font-size: 4rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 10px;
-            line-height: 1;
-        }
-
-        .salary-note {
-            color: var(--gray);
-            font-size: 1rem;
-            font-style: italic;
-        }
-
-        .data-section {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--secondary);
-        }
-
-        .step {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-
-        .step-number {
-            background: var(--primary);
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-lg {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 15px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            font-family: monospace;
-            font-size: 14px;
-            resize: vertical;
-            transition: var(--transition);
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 500px;
-            width: 100%;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-top: 30px;
-        }
-
-        .group-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .group-btn {
-            background: #e9ecef;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.9rem;
-        }
-
-        .group-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .salary-value {
-                font-size: 3.5rem;
-            }
-            
-            .chart-container {
-                height: 400px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .salary-value {
-                font-size: 3rem;
-            }
-            
-            .chart-container {
-                height: 350px;
-            }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        @media (max-width: 576px) {
-            body {
-                padding: 15px;
-            }
-            
-            .salary-value {
-                font-size: 2.5rem;
-            }
-            
-            .step {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .chart-container {
-                height: 300px;
-            }
-        }
-    </style>
+/* панель вставки */
+#panel{
+  background:var(--surface);
+  border-radius:8px;
+  overflow:hidden;
+}
+#panelHead{display:flex;justify-content:space-between;align-items:center;padding:.75rem;cursor:pointer}
+#panelBody{padding:0 .75rem .75rem;display:none}
+#panelBody.open{display:block}
+button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer}
+textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-radius:6px;padding:.5rem;font-family:monospace;font-size:.75rem;background:var(--bg);color:var(--text);margin:.4rem 0}
+#error,#success{font-size:.7rem;margin-top:.3rem;text-align:center;display:none}
+#error{color:var(--danger)}#success{color:var(--success)}
+@media(min-width:600px){h1{font-size:1.6rem}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Зарплаты Frontend-разработчиков</h1>
-            <p class="subtitle">Анализ медианных зарплат и распределения по уровням на основе данных с Habr Career</p>
-        </header>
+<div id="wrapper">
 
-        <main>
-            <div class="salary-display">
-                <div class="salary-label">Текущая медианная зарплата</div>
-                <div class="salary-value" id="medianSalary">—</div>
-                <div class="salary-note" id="salaryNote">Загрузите данные, чтобы увидеть актуальную информацию</div>
-            </div>
+<button id="themeToggle" aria-label="Переключить тему">☀️</button>
+<h1>Frontend зарплаты</h1>
 
-            <div class="data-section">
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h2 class="card-title">Получение данных</h2>
-                            <p>Из-за ограничений CORS нам нужно получить данные вручную</p>
-                        </div>
-                        <button class="btn btn-lg" id="toggleHelp">
-                            <i class="fas fa-question-circle"></i> Инструкция
-                        </button>
-                    </div>
+<!-- медиана -->
+<div id="medianCard">
+  <div id="medianValue">— ₽</div>
+  <div id="medianInfo"></div>
+  <div id="miniStats"></div>
+  <div id="gradeBar"></div>
+</div>
 
-                    <div id="helpSection">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <p>Нажмите на кнопку ниже, чтобы открыть страницу с данными о зарплатах:</p>
-                                <a href="https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases%5B%5D=frontend" 
-                                   target="_blank" class="btn">
-                                    <i class="fas fa-external-link-alt"></i> Открыть данные зарплат
-                                </a>
-                            </div>
-                        </div>
+<!-- прогресс-бары -->
+<div id="strip"></div>
 
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <p>Скопируйте весь текст со страницы (это данные в формате JSON):</p>
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <div>На странице должен отображаться только текст с данными. Если видите страницу с рекламой, прокрутите вниз до текста с фигурными скобками { ... }</div>
-                                </div>
-                            </div>
-                        </div>
+<!-- панель вставки -->
+<div id="panel">
+  <div id="panelHead">
+    <span>Загрузить данные</span>
+    <span id="panelIcon">▼</span>
+  </div>
+  <div id="panelBody">
+    <button id="copyBtn" class="btn-primary">📋 Скопировать JSON</button>
+    <textarea id="jsonInput" placeholder="Вставьте JSON сюда…"></textarea>
+    <button id="buildBtn" class="btn-primary">Показать</button>
+    <div id="error">Формат JSON неверен</div>
+    <div id="success">Готово!</div>
+  </div>
+</div>
 
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <p>Вставьте скопированные данные в поле ниже:</p>
-                                <div class="input-group">
-                                    <textarea id="jsonData" placeholder='Вставьте сюда JSON данные...'></textarea>
-                                </div>
-                                <button class="btn" id="processData">
-                                    <i class="fas fa-chart-bar"></i> Построить график
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+</div>
 
-                <div class="card hidden" id="chartCard">
-                    <div class="card-header">
-                        <h2 class="card-title">Распределение зарплат по уровням</h2>
-                        <div class="group-selector" id="groupSelector">
-                            <!-- Group buttons will be added dynamically -->
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="salaryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </main>
+<script>
+/* ---------- темы ---------- */
+const LS_THEME='theme';
+const toggleBtn=document.getElementById('themeToggle');
+function applyTheme(t){
+  document.documentElement.classList.toggle('light',t==='light');
+  toggleBtn.textContent=t==='light'?'🌙':'☀️';
+  localStorage.setItem(LS_THEME,t);
+}
+(()=>applyTheme(localStorage.getItem(LS_THEME)==='light'?'light':'dark'))();
+toggleBtn.addEventListener('click',()=>applyTheme(document.documentElement.classList.contains('light')?'dark':'light'));
 
-        <div class="footer">
-            <p>Данные предоставлены Habr Career. Обновляется автоматически при загрузке новых данных.</p>
-            <p>© 2023 Анализ зарплат IT-специалистов</p>
-        </div>
-    </div>
+/* ---------- панель ---------- */
+const panelHead=document.getElementById('panelHead');
+const panelBody=document.getElementById('panelBody');
+const panelIcon=document.getElementById('panelIcon');
+panelHead.addEventListener('click',()=>{
+  const open=!panelBody.classList.toggle('open');
+  panelIcon.textContent=open?'▲':'▼';
+});
+document.getElementById('copyBtn').addEventListener('click',()=>{
+  window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
+});
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const jsonDataTextarea = document.getElementById('jsonData');
-            const processDataBtn = document.getElementById('processData');
-            const medianSalaryEl = document.getElementById('medianSalary');
-            const salaryNoteEl = document.getElementById('salaryNote');
-            const chartCard = document.getElementById('chartCard');
-            const groupSelector = document.getElementById('groupSelector');
-            const helpSection = document.getElementById('helpSection');
-            const toggleHelpBtn = document.getElementById('toggleHelp');
-            
-            // Chart variables
-            let salaryChart = null;
-            let currentGroup = 'All';
-            let salaryData = null;
-            
-            // Toggle help section
-            let helpVisible = true;
-            toggleHelpBtn.addEventListener('click', function() {
-                helpVisible = !helpVisible;
-                helpSection.classList.toggle('hidden', !helpVisible);
-                toggleHelpBtn.innerHTML = helpVisible ? 
-                    '<i class="fas fa-question-circle"></i> Скрыть инструкцию' : 
-                    '<i class="fas fa-question-circle"></i> Инструкция';
-            });
-            
-            // Process JSON data
-            processDataBtn.addEventListener('click', function() {
-                try {
-                    const jsonData = jsonDataTextarea.value.trim();
-                    if (!jsonData) {
-                        showError('Пожалуйста, вставьте JSON данные');
-                        return;
-                    }
-                    
-                    salaryData = JSON.parse(jsonData);
-                    
-                    if (!salaryData.groups || salaryData.groups.length === 0) {
-                        showError('Данные не содержат информацию о зарплатах');
-                        return;
-                    }
-                    
-                    // Find "All" group for median salary
-                    const allGroup = salaryData.groups.find(group => group.name === 'All');
-                    if (!allGroup) {
-                        showError('Не найдены данные для медианной зарплаты');
-                        return;
-                    }
-                    
-                    // Update median salary display
-                    const medianSalary = formatSalary(allGroup.median);
-                    medianSalaryEl.textContent = medianSalary;
-                    salaryNoteEl.textContent = `Данные на основе ${allGroup.total} анкет`;
-                    
-                    // Prepare group selector
-                    updateGroupSelector();
-                    
-                    // Show chart card
-                    chartCard.classList.remove('hidden');
-                    
-                    // Create or update chart
-                    renderChart();
-                    
-                    // Scroll to chart
-                    chartCard.scrollIntoView({ behavior: 'smooth' });
-                    
-                } catch (error) {
-                    console.error('Error processing data:', error);
-                    showError('Ошибка обработки данных. Убедитесь, что вы скопировали правильный JSON.');
-                }
-            });
-            
-            // Format salary number
-            function formatSalary(amount) {
-                return new Intl.NumberFormat('ru-RU', {
-                    style: 'currency',
-                    currency: 'RUB',
-                    maximumFractionDigits: 0
-                }).format(amount);
-            }
-            
-            // Show error message
-            function showError(message) {
-                const errorEl = document.createElement('div');
-                errorEl.className = 'alert alert-warning';
-                errorEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
-                
-                const parent = processDataBtn.parentElement;
-                parent.insertBefore(errorEl, processDataBtn);
-                
-                setTimeout(() => {
-                    errorEl.remove();
-                }, 5000);
-            }
-            
-            // Update group selector buttons
-            function updateGroupSelector() {
-                groupSelector.innerHTML = '';
-                
-                salaryData.groups.forEach(group => {
-                    if (group.name !== 'All') {
-                        const button = document.createElement('button');
-                        button.className = `group-btn ${group.name === currentGroup ? 'active' : ''}`;
-                        button.textContent = group.name;
-                        button.dataset.group = group.name;
-                        
-                        button.addEventListener('click', () => {
-                            currentGroup = group.name;
-                            document.querySelectorAll('.group-btn').forEach(btn => {
-                                btn.classList.remove('active');
-                            });
-                            button.classList.add('active');
-                            renderChart();
-                        });
-                        
-                        groupSelector.appendChild(button);
-                    }
-                });
-            }
-            
-            // Render the chart
-            function renderChart() {
-                const ctx = document.getElementById('salaryChart').getContext('2d');
-                
-                // Destroy existing chart if it exists
-                if (salaryChart) {
-                    salaryChart.destroy();
-                }
-                
-                // Prepare data for selected group
-                const groupData = salaryData.groups.find(group => group.name === currentGroup);
-                
-                // Prepare data for chart
-                const labels = ['Минимум', '25-й перцентиль', 'Медиана', '75-й перцентиль', 'Максимум'];
-                const data = [
-                    groupData.min,
-                    groupData.p25,
-                    groupData.median,
-                    groupData.p75,
-                    groupData.max
-                ];
-                
-                // Create chart
-                salaryChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: `Зарплата (${currentGroup})`,
-                            data: data,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.7)',
-                                'rgba(54, 162, 235, 0.7)',
-                                'rgba(75, 192, 192, 0.7)',
-                                'rgba(54, 162, 235, 0.7)',
-                                'rgba(255, 99, 132, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgb(255, 99, 132)',
-                                'rgb(54, 162, 235)',
-                                'rgb(75, 192, 192)',
-                                'rgb(54, 162, 235)',
-                                'rgb(255, 99, 132)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: `Распределение зарплат для уровня: ${currentGroup}`,
-                                font: {
-                                    size: 18
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return formatSalary(context.parsed.y);
-                                    }
-                                }
-                            },
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return formatSalary(value);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Add sample data button functionality
-            document.addEventListener('click', function(e) {
-                if (e.target.id === 'addSampleData') {
-                    jsonDataTextarea.value = JSON.stringify({
-                        "groups": [
-                            {
-                                "name": "All",
-                                "min": 78500,
-                                "max": 425000,
-                                "p25": 128333,
-                                "p75": 327466,
-                                "median": 223333,
-                                "total": 5041,
-                                "title": "Фронтенд разработчик"
-                            },
-                            {
-                                "name": "Intern",
-                                "min": 20833,
-                                "max": 141447,
-                                "p25": 41213,
-                                "p75": 86250,
-                                "median": 62791,
-                                "total": 150
-                            },
-                            {
-                                "name": "Senior",
-                                "min": 207250,
-                                "max": 483333,
-                                "p25": 270541,
-                                "p75": 410000,
-                                "median": 337500,
-                                "total": 1264
-                            },
-                            {
-                                "name": "Middle",
-                                "min": 102500,
-                                "max": 310000,
-                                "p25": 141133,
-                                "p75": 250333,
-                                "median": 197500,
-                                "total": 2479
-                            },
-                            {
-                                "name": "Junior",
-                                "min": 45833,
-                                "max": 150833,
-                                "p25": 61666,
-                                "p75": 110833,
-                                "median": 85833,
-                                "total": 662
-                            },
-                            {
-                                "name": "Lead",
-                                "min": 256666,
-                                "max": 577500,
-                                "p25": 329166,
-                                "p75": 490333,
-                                "median": 400000,
-                                "total": 486
-                            }
-                        ]
-                    }, null, 2);
-                }
-            });
-        });
-    </script>
+/* ---------- иконки ---------- */
+const icons={
+  'All':'fa-users',
+  'Intern':'fa-user',
+  'Junior':'fa-user-graduate',
+  'Middle':'fa-user-tie',
+  'Senior':'fa-crown',
+  'Lead':'fa-chess-king'
+};
+
+/* ---------- порядок грейдов ---------- */
+const ORDER=['All','Intern','Junior','Middle','Senior','Lead'];
+
+/* ---------- локальное хранение выбранного грейда ---------- */
+const LS_GRADE='selectedGrade';
+
+/* ---------- логика ---------- */
+let dataGlobal=null;
+
+document.getElementById('buildBtn').addEventListener('click',()=>{
+  try{
+    const data=JSON.parse(document.getElementById('jsonInput').value.trim());
+    if(!data.groups) throw 'no groups';
+    showData(data);
+    localStorage.setItem('habr_salary_json',JSON.stringify(data));
+  }catch(e){
+    document.getElementById('error').style.display='block';
+    document.getElementById('success').style.display='none';
+  }
+});
+
+function showData(data){
+  dataGlobal=data;
+  document.getElementById('success').style.display='block';
+  document.getElementById('error').style.display='none';
+  buildGradesBar(data.groups);
+  drawStrip(data.groups);
+  const savedGrade=localStorage.getItem(LS_GRADE)||'All';
+  updateGrade(savedGrade);
+  panelBody.classList.remove('open'); panelIcon.textContent='▼';
+}
+
+function buildGradesBar(groups){
+  const bar=document.getElementById('gradeBar');
+  bar.innerHTML='';
+  ORDER.forEach(name=>{
+    const g=groups.find(gr=>gr.name===name);
+    if(!g) return;
+    const btn=document.createElement('button');
+    btn.className='gradeBtn';
+    btn.innerHTML=`<i class="fas ${icons[name]||'fa-user'}"></i> ${name}`;
+    btn.dataset.grade=name;
+    btn.addEventListener('click',()=>updateGrade(name));
+    bar.appendChild(btn);
+  });
+}
+
+function updateGrade(grade){
+  const group=dataGlobal.groups.find(g=>g.name===grade);
+  document.getElementById('medianValue').textContent=group.median.toLocaleString('ru-RU')+' ₽';
+  document.getElementById('medianInfo').innerHTML=
+    `На основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
+  document.querySelectorAll('.gradeBtn').forEach(b=>b.classList.toggle('active',b.dataset.grade===grade));
+  localStorage.setItem(LS_GRADE,grade);
+
+  const stats=document.getElementById('miniStats');
+  stats.innerHTML=`
+    <div class="miniBlock">Мин<div class="num">${group.min.toLocaleString('ru-RU')} ₽</div></div>
+    <div class="miniBlock">25%<div class="num">${group.p25.toLocaleString('ru-RU')} ₽</div></div>
+    <div class="miniBlock">75%<div class="num">${group.p75.toLocaleString('ru-RU')} ₽</div></div>
+    <div class="miniBlock">Макс<div class="num">${group.max.toLocaleString('ru-RU')} ₽</div></div>
+  `;
+  document.getElementById('medianCard').style.display='block';
+}
+
+function drawStrip(groups){
+  const max=Math.max(...groups.map(g=>g.median));
+  const strip=document.getElementById('strip');
+  strip.innerHTML='';
+  ORDER.filter(name=>name!=='All').forEach(name=>{
+    const g=groups.find(gr=>gr.name===name);
+    if(!g) return;
+    const pct=(g.median/max)*100;
+    const bar=document.createElement('div');
+    bar.className='bar';
+    bar.style.width=pct.toFixed(2)+'%';
+    bar.innerHTML=`<span>${name}: ${g.median.toLocaleString('ru-RU')} ₽</span>`;
+    strip.appendChild(bar);
+  });
+  strip.style.display='block';
+}
+
+/* ---------- кеш ---------- */
+(()=>{
+  const cached=localStorage.getItem('habr_salary_json');
+  if(cached) showData(JSON.parse(cached));
+})();
+</script>
 </body>
 </html>
