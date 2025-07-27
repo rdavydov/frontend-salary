@@ -158,7 +158,7 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 #panelHead{display:flex;justify-content:space-between;align-items:center;padding:.75rem;cursor:pointer}
 #panelBody{padding:0 .75rem .75rem;display:none}
 #panelBody.open{display:block}
-button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer}
+button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;text-shadow:0 0 2px #0008,0 0 2px #0008;}
 textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-radius:6px;padding:.5rem;font-family:monospace;font-size:.75rem;background:var(--bg);color:var(--text);margin:.4rem 0}
 #error,#success{font-size:.7rem;margin-top:.3rem;text-align:center;display:none}
 #error{color:var(--danger)}#success{color:var(--success)}
@@ -218,6 +218,7 @@ const panelIcon=document.getElementById('panelIcon');
 panelHead.addEventListener('click',()=>{
   const open=!panelBody.classList.toggle('open');
   panelIcon.textContent=open?'▲':'▼';
+  document.getElementById('success').style.display='none';
 });
 document.getElementById('copyBtn').addEventListener('click',()=>{
   window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
@@ -284,7 +285,7 @@ function updateGrade(grade){
   const group=dataGlobal.groups.find(g=>g.name===grade);
   document.getElementById('medianValue').textContent=group.median.toLocaleString('ru-RU')+' ₽';
   document.getElementById('medianInfo').innerHTML=
-    `На основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
+    `на основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
   document.querySelectorAll('.gradeBtn').forEach(b=>b.classList.toggle('active',b.dataset.grade===grade));
   localStorage.setItem(LS_GRADE,grade);
 
