@@ -50,123 +50,40 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 
 /* медиана */
 #medianCard{
-  background:var(--surface);
-  border-radius:10px;
-  padding:1rem;
-  text-align:center;
-  display:none;
+  background:var(--surface);border-radius:10px;padding:1rem;text-align:center;display:none
 }
 #medianValue{font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:.25rem}
-#medianInfo{
-  font-size:.8rem;
-  color:var(--text-muted);
-  margin-bottom:.75rem;
-  letter-spacing:.3px;
-}
-#medianInfo code{
-  background:var(--bg);
-  color:var(--accent);
-  padding:.15rem .35rem;
-  border-radius:4px;
-  font-family:'Inter',monospace;
-  font-weight:600;
-}
+#medianInfo{font-size:.8rem;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.3px}
+#medianInfo code{background:var(--bg);color:var(--accent);padding:.15rem .35rem;border-radius:4px;font-family:'Inter',monospace;font-weight:600}
 
 /* 4 блока */
-#miniStats{
-  display:flex;
-  gap:.25rem;
-  flex-wrap:nowrap;
-  justify-content:space-between;
-  margin-bottom:1.2rem;          /* ↑ отступ к грейдам */
-}
-.miniBlock{
-  flex:1 1 0;
-  background:var(--bg);
-  border-radius:6px;
-  padding:.5rem .25rem;
-  font-size:.7rem;
-  text-align:center;
-  white-space:nowrap;
-}
+#miniStats{display:flex;gap:.25rem;flex-wrap:nowrap;justify-content:space-between;margin-bottom:1.2rem}
+.miniBlock{flex:1 1 0;background:var(--bg);border-radius:6px;padding:.5rem .25rem;font-size:.7rem;text-align:center;white-space:nowrap}
 .miniBlock .num{font-size:.8rem;font-weight:600;color:var(--accent)}
 
-/* грейды – визуально выделены рамкой + отступ */
-#gradeBar{
-  display:flex;
-  gap:.25rem;
-  flex-wrap:nowrap;
-  justify-content:space-between;
-  border:1px solid var(--accent);
-  border-radius:8px;
-  padding:.25rem;
-}
-.gradeBtn{
-  flex:1 1 0;
-  background:transparent;
-  border:0;
-  color:var(--accent);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:.2rem;
-  font-size:.7rem;
-  padding:.4rem 0;
-  border-radius:4px;
-}
+/* грейды – выделены рамкой */
+#gradeBar{display:flex;gap:.25rem;flex-wrap:nowrap;justify-content:space-between;border:1px solid var(--accent);border-radius:8px;padding:.25rem}
+.gradeBtn{flex:1 1 0;background:transparent;border:0;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.2rem;font-size:.7rem;padding:.4rem 0;border-radius:4px;text-shadow:0 0 2px var(--bg),0 0 2px var(--bg)}
 .gradeBtn.active{background:var(--accent);color:#fff}
 
-/* прогресс-бары */
-#strip{
-  background:var(--surface);
-  border-radius:6px;
-  padding:.4rem;
-  display:none
-}
-.bar{
-  height:28px;
-  border-radius:4px;
-  margin:.25rem 0;
-  position:relative;
-  background:var(--accent);
-  transition:width .4s;
-  display:flex;
-  align-items:center;
-}
-.bar span{
-  position:absolute;
-  top:50%;
-  left:.4rem;
-  transform:translateY(-50%);
-  font-size:.65rem;
-  font-weight:600;
-  color:#fff;
-  padding:.1rem .35rem;
-  background:#000a;
-  border-radius:3px;
-  white-space:nowrap;
-}
+/* прогресс-бары (всегда белый текст + чёрный фон) */
+#strip{background:var(--surface);border-radius:6px;padding:.4rem;display:none}
+.bar{height:28px;border-radius:4px;margin:.25rem 0;position:relative;background:var(--accent);transition:width .4s;display:flex;align-items:center}
+.bar span{position:absolute;top:50%;left:.4rem;transform:translateY(-50%);font-size:.65rem;font-weight:600;color:#fff;padding:.1rem .35rem;background:#000a;border-radius:3px;white-space:nowrap}
 
 /* панель вставки */
-#panel{
-  background:var(--surface);
-  border-radius:8px;
-  overflow:hidden;
-}
+#panel{background:var(--surface);border-radius:8px;overflow:hidden}
 #panelHead{display:flex;justify-content:space-between;align-items:center;padding:.75rem;cursor:pointer}
 #panelBody{padding:0 .75rem .75rem;display:none}
 #panelBody.open{display:block}
-button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;text-shadow:0 0 2px #0008,0 0 2px #0008;}
+button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;text-shadow:0 0 2px #0008,0 0 2px #0008}
 textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-radius:6px;padding:.5rem;font-family:monospace;font-size:.75rem;background:var(--bg);color:var(--text);margin:.4rem 0}
-#error{font-size:.7rem;margin-top:.3rem;text-align:center;display:none}
-#error{color:var(--danger)}
+#error{font-size:.7rem;margin-top:.3rem;text-align:center;display:none;color:var(--danger)}
 @media(min-width:600px){h1{font-size:1.6rem}}
 </style>
 </head>
 <body>
 <div id="wrapper">
-
 <button id="themeToggle" aria-label="Переключить тему">☀️</button>
 <h1>медианная зарплата</h1>
 
@@ -183,10 +100,7 @@ textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-r
 
 <!-- панель вставки -->
 <div id="panel">
-  <div id="panelHead">
-    <span>Загрузить данные</span>
-    <span id="panelIcon">▼</span>
-  </div>
+  <div id="panelHead"><span>Загрузить данные</span><span id="panelIcon">▼</span></div>
   <div id="panelBody">
     <button id="copyBtn" class="btn-primary">📋 Скопировать JSON</button>
     <textarea id="jsonInput" placeholder="Вставьте JSON сюда…"></textarea>
@@ -194,7 +108,6 @@ textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-r
     <div id="error">Формат JSON неверен</div>
   </div>
 </div>
-
 </div>
 
 <script>
@@ -213,13 +126,8 @@ toggleBtn.addEventListener('click',()=>applyTheme(document.documentElement.class
 const panelHead=document.getElementById('panelHead');
 const panelBody=document.getElementById('panelBody');
 const panelIcon=document.getElementById('panelIcon');
-panelHead.addEventListener('click',()=>{
-  const open=!panelBody.classList.toggle('open');
-  panelIcon.textContent=open?'▲':'▼';
-});
-document.getElementById('copyBtn').addEventListener('click',()=>{
-  window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank');
-});
+panelHead.addEventListener('click',()=>{const o=!panelBody.classList.toggle('open');panelIcon.textContent=o?'▲':'▼';});
+document.getElementById('copyBtn').addEventListener('click',()=>window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank'));
 
 /* ---------- иконки ---------- */
 const icons={
@@ -240,81 +148,106 @@ const LS_GRADE='selectedGrade';
 /* ---------- логика ---------- */
 let dataGlobal=null;
 
-document.getElementById('buildBtn').addEventListener('click',()=>{
-  try{
-    const data=JSON.parse(document.getElementById('jsonInput').value.trim());
-    if(!data.groups) throw 'no groups';
+/* --- auto-fetch from proxy --- */
+async function loadFromProxy() {
+  try {
+    const res = await fetch('/api/salary');
+    if (!res.ok) throw res.status;
+    const data = await res.json();
     showData(data);
-    localStorage.setItem('habr_salary_json',JSON.stringify(data));
-  }catch(e){
-    document.getElementById('error').style.display='block';
+    localStorage.setItem('habr_salary_json', JSON.stringify(data));
+  } catch (e) {
+    console.warn('Proxy failed, fallback to manual');
+    // open manual panel
+    panelBody.classList.add('open');
+    panelIcon.textContent = '▲';
+  }
+}
+
+/* --- manual load --- */
+document.getElementById('buildBtn').addEventListener('click', () => {
+  try {
+    const data = JSON.parse(document.getElementById('jsonInput').value.trim());
+    if (!data.groups) throw 'no groups';
+    showData(data);
+    localStorage.setItem('habr_salary_json', JSON.stringify(data));
+    document.getElementById('error').style.display = 'none';
+  } catch (e) {
+    document.getElementById('error').style.display = 'block';
   }
 });
 
-function showData(data){
-  dataGlobal=data;
-  document.getElementById('error').style.display='none';
+function showData(data) {
+  dataGlobal = data;
+  document.getElementById('error').style.display = 'none';
   buildGradesBar(data.groups);
   drawStrip(data.groups);
-  const savedGrade=localStorage.getItem(LS_GRADE)||'All';
+  const savedGrade = localStorage.getItem(LS_GRADE) || 'All';
   updateGrade(savedGrade);
-  panelBody.classList.remove('open'); panelIcon.textContent='▼';
+  panelBody.classList.remove('open');
+  panelIcon.textContent = '▼';
 }
 
-function buildGradesBar(groups){
-  const bar=document.getElementById('gradeBar');
-  bar.innerHTML='';
-  ORDER.forEach(name=>{
-    const g=groups.find(gr=>gr.name===name);
-    if(!g) return;
-    const btn=document.createElement('button');
-    btn.className='gradeBtn';
-    btn.innerHTML=`<i class="fas ${icons[name]||'fa-user'}"></i> ${name}`;
-    btn.dataset.grade=name;
-    btn.addEventListener('click',()=>updateGrade(name));
+function buildGradesBar(groups) {
+  const bar = document.getElementById('gradeBar');
+  bar.innerHTML = '';
+  ORDER.forEach(name => {
+    const g = groups.find(gr => gr.name === name);
+    if (!g) return;
+    const btn = document.createElement('button');
+    btn.className = 'gradeBtn';
+    btn.innerHTML = `<i class="fas ${icons[name]||'fa-user'}"></i> ${name}`;
+    btn.dataset.grade = name;
+    btn.addEventListener('click', () => updateGrade(name));
     bar.appendChild(btn);
   });
 }
 
-function updateGrade(grade){
-  const group=dataGlobal.groups.find(g=>g.name===grade);
-  document.getElementById('medianValue').textContent=group.median.toLocaleString('ru-RU')+' ₽';
-  document.getElementById('medianInfo').innerHTML=
+function updateGrade(grade) {
+  const group = dataGlobal.groups.find(g => g.name === grade);
+  document.getElementById('medianValue').textContent = group.median.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('medianInfo').innerHTML =
     `на основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
-  document.querySelectorAll('.gradeBtn').forEach(b=>b.classList.toggle('active',b.dataset.grade===grade));
-  localStorage.setItem(LS_GRADE,grade);
+  document.querySelectorAll('.gradeBtn').forEach(b =>
+    b.classList.toggle('active', b.dataset.grade === grade)
+  );
+  localStorage.setItem(LS_GRADE, grade);
 
-  const stats=document.getElementById('miniStats');
-  stats.innerHTML=`
+  const stats = document.getElementById('miniStats');
+  stats.innerHTML = `
     <div class="miniBlock">Мин<div class="num">${group.min.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">25%<div class="num">${group.p25.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">75%<div class="num">${group.p75.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">Макс<div class="num">${group.max.toLocaleString('ru-RU')} ₽</div></div>
   `;
-  document.getElementById('medianCard').style.display='block';
+  document.getElementById('medianCard').style.display = 'block';
 }
 
-function drawStrip(groups){
-  const max=Math.max(...groups.map(g=>g.median));
-  const strip=document.getElementById('strip');
-  strip.innerHTML='';
-  ORDER.filter(name=>name!=='All').forEach(name=>{
-    const g=groups.find(gr=>gr.name===name);
-    if(!g) return;
-    const pct=(g.median/max)*100;
-    const bar=document.createElement('div');
-    bar.className='bar';
-    bar.style.width=pct.toFixed(2)+'%';
-    bar.innerHTML=`<span>${name}: ${g.median.toLocaleString('ru-RU')} ₽</span>`;
+function drawStrip(groups) {
+  const max = Math.max(...groups.map(g => g.median));
+  const strip = document.getElementById('strip');
+  strip.innerHTML = '';
+  ORDER.filter(name => name !== 'All').forEach(name => {
+    const g = groups.find(gr => gr.name === name);
+    if (!g) return;
+    const pct = (g.median / max) * 100;
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.width = pct.toFixed(2) + '%';
+    bar.innerHTML = `<span>${name}: ${g.median.toLocaleString('ru-RU')} ₽</span>`;
     strip.appendChild(bar);
   });
-  strip.style.display='block';
+  strip.style.display = 'block';
 }
 
-/* ---------- кеш ---------- */
-(()=>{
-  const cached=localStorage.getItem('habr_salary_json');
-  if(cached) showData(JSON.parse(cached));
+/* ---------- init ---------- */
+(() => {
+  const cached = localStorage.getItem('habr_salary_json');
+  if (cached) {
+    showData(JSON.parse(cached));
+  } else {
+    loadFromProxy();
+  }
 })();
 </script>
 </body>
