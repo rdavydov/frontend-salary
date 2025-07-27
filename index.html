@@ -199,7 +199,7 @@ function buildGradesBar(groups){
 function updateGrade(grade){
   const group=dataGlobal.groups.find(g=>g.name===grade);
   document.getElementById('medianValue').textContent=group.median.toLocaleString('ru-RU')+' ₽';
-  document.getElementById('medianInfo').innerHTML=`на основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
+  document.getElementById('medianInfo').innerHTML=`на основе <code>${group.total}</code> анкет <code>${grade}</code>`;
   document.querySelectorAll('.gradeBtn').forEach(b=>b.classList.toggle('active',b.dataset.grade===grade));
   localStorage.setItem(LS_GRADE,grade);
 
