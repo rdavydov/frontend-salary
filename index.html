@@ -47,7 +47,6 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 #themeToggle{
   position:fixed;top:.5rem;right:.5rem;background:var(--surface);border:0;border-radius:50%;width:42px;height:42px;font-size:1.3rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3);z-index:100
 }
-
 /* медиана */
 #medianCard{
   background:var(--surface);border-radius:10px;padding:1rem;text-align:center;display:none
@@ -61,12 +60,12 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 .miniBlock{flex:1 1 0;background:var(--bg);border-radius:6px;padding:.5rem .25rem;font-size:.7rem;text-align:center;white-space:nowrap}
 .miniBlock .num{font-size:.8rem;font-weight:600;color:var(--accent)}
 
-/* грейды – выделены рамкой */
+/* грейды */
 #gradeBar{display:flex;gap:.25rem;flex-wrap:nowrap;justify-content:space-between;border:1px solid var(--accent);border-radius:8px;padding:.25rem}
 .gradeBtn{flex:1 1 0;background:transparent;border:0;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.2rem;font-size:.7rem;padding:.4rem 0;border-radius:4px;text-shadow:0 0 2px var(--bg),0 0 2px var(--bg)}
 .gradeBtn.active{background:var(--accent);color:#fff}
 
-/* прогресс-бары (всегда белый текст + чёрный фон) */
+/* прогресс-бары */
 #strip{background:var(--surface);border-radius:6px;padding:.4rem;display:none}
 .bar{height:28px;border-radius:4px;margin:.25rem 0;position:relative;background:var(--accent);transition:width .4s;display:flex;align-items:center}
 .bar span{position:absolute;top:50%;left:.4rem;transform:translateY(-50%);font-size:.65rem;font-weight:600;color:#fff;padding:.1rem .35rem;background:#000a;border-radius:3px;white-space:nowrap}
@@ -78,8 +77,10 @@ h1{margin:.5rem 0;font-size:1.5rem;font-weight:700;text-align:center}
 #panelBody.open{display:block}
 button.btn-primary{width:100%;padding:.55rem;border:0;border-radius:6px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;text-shadow:0 0 2px #0008,0 0 2px #0008}
 textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-radius:6px;padding:.5rem;font-family:monospace;font-size:.75rem;background:var(--bg);color:var(--text);margin:.4rem 0}
+
+/* инфо-строка timestamp */
+#dataSource{font-size:.7rem;color:var(--text-muted);margin-top:.25rem;text-align:center}
 #error{font-size:.7rem;margin-top:.3rem;text-align:center;display:none;color:var(--danger)}
-@media(min-width:600px){h1{font-size:1.6rem}}
 </style>
 </head>
 <body>
@@ -93,6 +94,7 @@ textarea{width:100%;min-height:100px;border:1px solid var(--text-muted);border-r
   <div id="medianInfo"></div>
   <div id="miniStats"></div>
   <div id="gradeBar"></div>
+  <div id="dataSource"></div>
 </div>
 
 <!-- прогресс-бары -->
@@ -122,133 +124,118 @@ function applyTheme(t){
 (()=>applyTheme(localStorage.getItem(LS_THEME)==='light'?'light':'dark'))();
 toggleBtn.addEventListener('click',()=>applyTheme(document.documentElement.classList.contains('light')?'dark':'light'));
 
-/* ---------- панель ---------- */
 const panelHead=document.getElementById('panelHead');
 const panelBody=document.getElementById('panelBody');
 const panelIcon=document.getElementById('panelIcon');
 panelHead.addEventListener('click',()=>{const o=!panelBody.classList.toggle('open');panelIcon.textContent=o?'▲':'▼';});
 document.getElementById('copyBtn').addEventListener('click',()=>window.open('https://career.habr.com/api/frontend_v1/salary_calculator/general_graph?spec_aliases[]=frontend','_blank'));
 
-/* ---------- иконки ---------- */
-const icons={
-  'All':'fa-users',
-  'Intern':'fa-user',
-  'Junior':'fa-user-graduate',
-  'Middle':'fa-user-tie',
-  'Senior':'fa-crown',
-  'Lead':'fa-chess-king'
-};
-
-/* ---------- порядок грейдов ---------- */
+const icons={'All':'fa-users','Intern':'fa-user','Junior':'fa-user-graduate','Middle':'fa-user-tie','Senior':'fa-crown','Lead':'fa-chess-king'};
 const ORDER=['All','Intern','Junior','Middle','Senior','Lead'];
-
-/* ---------- локальное хранение выбранного грейда ---------- */
 const LS_GRADE='selectedGrade';
+const LS_TIMESTAMP='salaryTimestamp';
+const LS_SOURCE='salarySource';
 
-/* ---------- логика ---------- */
 let dataGlobal=null;
 
-/* --- auto-fetch from proxy --- */
 async function loadFromProxy() {
   try {
     const res = await fetch('/api/salary');
     if (!res.ok) throw res.status;
     const data = await res.json();
-    showData(data);
     localStorage.setItem('habr_salary_json', JSON.stringify(data));
+    localStorage.setItem(LS_TIMESTAMP, new Date().toISOString());
+    localStorage.setItem(LS_SOURCE, 'API');
+    showData(data);
+    document.getElementById('error').style.display='none';
   } catch (e) {
-    console.warn('Proxy failed, fallback to manual');
-    // open manual panel
+    console.warn('Proxy failed', e);
+    document.getElementById('error').style.display='block';
+    document.getElementById('error').textContent='Сервер недоступен – используйте ручной ввод';
     panelBody.classList.add('open');
-    panelIcon.textContent = '▲';
+    panelIcon.textContent='▲';
   }
 }
 
-/* --- manual load --- */
-document.getElementById('buildBtn').addEventListener('click', () => {
-  try {
-    const data = JSON.parse(document.getElementById('jsonInput').value.trim());
-    if (!data.groups) throw 'no groups';
+document.getElementById('buildBtn').addEventListener('click',()=>{
+  try{
+    const data=JSON.parse(document.getElementById('jsonInput').value.trim());
+    if(!data.groups) throw 'no groups';
+    localStorage.setItem('habr_salary_json',JSON.stringify(data));
+    localStorage.setItem(LS_TIMESTAMP,new Date().toISOString());
+    localStorage.setItem(LS_SOURCE,'Вручную');
     showData(data);
-    localStorage.setItem('habr_salary_json', JSON.stringify(data));
-    document.getElementById('error').style.display = 'none';
-  } catch (e) {
-    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').style.display='none';
+  }catch(e){
+    document.getElementById('error').style.display='block';
   }
 });
 
-function showData(data) {
-  dataGlobal = data;
-  document.getElementById('error').style.display = 'none';
+function showData(data){
+  dataGlobal=data;
   buildGradesBar(data.groups);
   drawStrip(data.groups);
-  const savedGrade = localStorage.getItem(LS_GRADE) || 'All';
+  const savedGrade=localStorage.getItem(LS_GRADE)||'All';
   updateGrade(savedGrade);
   panelBody.classList.remove('open');
-  panelIcon.textContent = '▼';
+  panelIcon.textContent='▼';
 }
 
-function buildGradesBar(groups) {
-  const bar = document.getElementById('gradeBar');
-  bar.innerHTML = '';
-  ORDER.forEach(name => {
-    const g = groups.find(gr => gr.name === name);
-    if (!g) return;
-    const btn = document.createElement('button');
-    btn.className = 'gradeBtn';
-    btn.innerHTML = `<i class="fas ${icons[name]||'fa-user'}"></i> ${name}`;
-    btn.dataset.grade = name;
-    btn.addEventListener('click', () => updateGrade(name));
+function buildGradesBar(groups){
+  const bar=document.getElementById('gradeBar');
+  bar.innerHTML='';
+  ORDER.forEach(name=>{
+    const g=groups.find(gr=>gr.name===name);
+    if(!g)return;
+    const btn=document.createElement('button');
+    btn.className='gradeBtn';
+    btn.innerHTML=`<i class="fas ${icons[name]}"></i> ${name}`;
+    btn.dataset.grade=name;
+    btn.addEventListener('click',()=>updateGrade(name));
     bar.appendChild(btn);
   });
 }
 
-function updateGrade(grade) {
-  const group = dataGlobal.groups.find(g => g.name === grade);
-  document.getElementById('medianValue').textContent = group.median.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('medianInfo').innerHTML =
-    `на основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
-  document.querySelectorAll('.gradeBtn').forEach(b =>
-    b.classList.toggle('active', b.dataset.grade === grade)
-  );
-  localStorage.setItem(LS_GRADE, grade);
+function updateGrade(grade){
+  const group=dataGlobal.groups.find(g=>g.name===grade);
+  document.getElementById('medianValue').textContent=group.median.toLocaleString('ru-RU')+' ₽';
+  document.getElementById('medianInfo').innerHTML=`на основе <code>${group.total}</code> анкет <code>(${grade})</code>`;
+  document.querySelectorAll('.gradeBtn').forEach(b=>b.classList.toggle('active',b.dataset.grade===grade));
+  localStorage.setItem(LS_GRADE,grade);
 
-  const stats = document.getElementById('miniStats');
-  stats.innerHTML = `
+  const ts=new Date(localStorage.getItem(LS_TIMESTAMP));
+  const src=localStorage.getItem(LS_SOURCE);
+  document.getElementById('dataSource').innerHTML=`${src} · ${ts.toLocaleString('ru-RU')}`;
+
+  const stats=document.getElementById('miniStats');
+  stats.innerHTML=`
     <div class="miniBlock">Мин<div class="num">${group.min.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">25%<div class="num">${group.p25.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">75%<div class="num">${group.p75.toLocaleString('ru-RU')} ₽</div></div>
     <div class="miniBlock">Макс<div class="num">${group.max.toLocaleString('ru-RU')} ₽</div></div>
   `;
-  document.getElementById('medianCard').style.display = 'block';
+  document.getElementById('medianCard').style.display='block';
 }
 
-function drawStrip(groups) {
-  const max = Math.max(...groups.map(g => g.median));
-  const strip = document.getElementById('strip');
-  strip.innerHTML = '';
-  ORDER.filter(name => name !== 'All').forEach(name => {
-    const g = groups.find(gr => gr.name === name);
-    if (!g) return;
-    const pct = (g.median / max) * 100;
-    const bar = document.createElement('div');
-    bar.className = 'bar';
-    bar.style.width = pct.toFixed(2) + '%';
-    bar.innerHTML = `<span>${name}: ${g.median.toLocaleString('ru-RU')} ₽</span>`;
+function drawStrip(groups){
+  const max=Math.max(...groups.map(g=>g.median));
+  const strip=document.getElementById('strip');
+  strip.innerHTML='';
+  ORDER.filter(name=>name!=='All').forEach(name=>{
+    const g=groups.find(gr=>gr.name===name);
+    if(!g)return;
+    const pct=(g.median/max)*100;
+    const bar=document.createElement('div');
+    bar.className='bar';
+    bar.style.width=pct.toFixed(2)+'%';
+    bar.innerHTML=`<span>${name}: ${g.median.toLocaleString('ru-RU')} ₽</span>`;
     strip.appendChild(bar);
   });
-  strip.style.display = 'block';
+  strip.style.display='block';
 }
 
-/* ---------- init ---------- */
-(() => {
-  const cached = localStorage.getItem('habr_salary_json');
-  if (cached) {
-    showData(JSON.parse(cached));
-  } else {
-    loadFromProxy();
-  }
-})();
+/* ---------- автоматически при каждом открытии ---------- */
+loadFromProxy();
 </script>
 </body>
 </html>
